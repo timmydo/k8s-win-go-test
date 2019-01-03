@@ -1,0 +1,41 @@
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: mytestservice
+  name: mytestservice
+spec:
+  selector:
+    app: mytestservice
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mytestservice
+spec:
+  selector:
+    matchLabels:
+      app: mytestservice
+  replicas: 50
+  template:
+    metadata:
+      labels:
+        app: mytestservice
+    spec:
+      containers:
+      - name: mytestservice
+        image: "timmydo/k8s-win-go-test:win-latest"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+      nodeSelector:
+        "beta.kubernetes.io/os": windows

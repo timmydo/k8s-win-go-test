@@ -1,0 +1,12 @@
+# Use the dotnet core build environment to restore and build
+FROM golang:1.11.4-windowsservercore-1803 AS build
+WORKDIR /app/
+COPY ./main.go ./main.go
+RUN go build -o app.exe main.go
+
+# Runtime image - msiexec doesn't run on nanoserver, and get the asp net core runtime from above
+FROM mcr.microsoft.com/windows/nanoserver:1803
+
+WORKDIR /app
+COPY --from=build /app/app.exe ./
+ENTRYPOINT ["app.exe"]
